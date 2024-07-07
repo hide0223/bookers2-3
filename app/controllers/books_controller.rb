@@ -1,5 +1,5 @@
 class BooksController < ApplicationController
-   before_action :is_matching_login_user, only: [:edit, :update]
+   before_action :is_matching_login_user, only: [:edit, :update, :destroy]
 
   def show
     @book = Book.find(params[:id])
@@ -9,16 +9,13 @@ class BooksController < ApplicationController
   end
 
   def index
-    def index
-    to = Time.current.at_end_of_day　#現在の日時を取得し、その日の最後の時刻を代入
-    from  = (to - 6.day).at_beginning_of_day　#toから6日間の日時を計算し、その日の始まりに時刻を表す。そのため、`from`には6日前の日付の始まりの時刻が代入される
-    @books = Book.includes(:favorites).sort_by {|x| x.favorites.where(created_at: from...to).size}.reverse
-      #bookオブジェクトからfavoritesモデルのデータを取得。
-      #x.favorites.whereでbookオブジェクトに関連しているfavoritesモデルからcreated_atカラムのfrom...to間のレコードを取得し、sizeでどの本が一番お気に入りなのかを判別
-      #sort_by.reverseでお気に入りの数が最も多い書籍から順に並べ替えている
-    @book1 = Book.all
+    to = Time.current.at_end_of_day #現在の時刻を取得し、その日の終わりの時刻を表す変数をtoに格納
+    from  = (to - 6.day).at_beginning_of_day #toから6日前の始まりの時刻を表す変数をfromに格納
+    @books = Book.all.sort {|a,b| b.favorites.where(created_at: from...to).size <=> a.favorites.where(created_at: from...to).size}
+     #Book.allでbookモデルからすべてのデータを取得。
+     #取得したデータに関連したfavoritesモデルからcreated_atカラムのfrom...toのレコードを取得し、aとbに代入してどちらがお気に入りの数が多いか比較
+     #比較して多い順になれべている
     @book = Book.new
-    end
   end
 
   def create
